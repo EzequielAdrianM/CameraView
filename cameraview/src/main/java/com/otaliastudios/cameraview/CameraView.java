@@ -669,32 +669,34 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
             onGesture(mTapGestureFinder, options);
         }
 
-        if(event.getAction() == MotionEvent.ACTION_DOWN) x1 = event.getX();
-        if(event.getAction() == MotionEvent.ACTION_UP) {
-            x2 = event.getX();
-            float deltaX = x2 - x1;
-            if(deltaX > MIN_SWIPE_DISTANCE) {
-                mUiHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        for (CameraListener listener : mListeners) {
-                            listener.onSwipeRight();
+        // Only detect swipes for single-finger gestures
+        if(event.getPointerCount() == 1) {
+            if(event.getAction() == MotionEvent.ACTION_DOWN) x1 = event.getX();
+            if(event.getAction() == MotionEvent.ACTION_UP) {
+                x2 = event.getX();
+                float deltaX = x2 - x1;
+                if(deltaX > MIN_SWIPE_DISTANCE) {
+                    mUiHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            for (CameraListener listener : mListeners) {
+                                listener.onSwipeRight();
+                            }
                         }
-                    }
-                });
-            }
-            if (deltaX < MIN_SWIPE_DISTANCE) {
-                mUiHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        for (CameraListener listener : mListeners) {
-                            listener.onSwipeLeft();
+                    });
+                }
+                if (deltaX < -MIN_SWIPE_DISTANCE) {
+                    mUiHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            for (CameraListener listener : mListeners) {
+                                listener.onSwipeLeft();
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }
         }
-
         return true;
     }
 
