@@ -658,9 +658,12 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         // Pass to our own GestureLayouts
         CameraOptions options = mCameraEngine.getCameraOptions(); // Non null
         if (options == null) throw new IllegalStateException("Options should not be null here.");
+
+        boolean ongoingPinchEvent = false;
         if (mPinchGestureFinder.onTouchEvent(event)) {
             LOG.i("onTouchEvent", "pinch!");
             onGesture(mPinchGestureFinder, options);
+            ongoingPinchEvent = true;
         } else if (mScrollGestureFinder.onTouchEvent(event)) {
             LOG.i("onTouchEvent", "scroll!");
             onGesture(mScrollGestureFinder, options);
@@ -669,8 +672,8 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
             onGesture(mTapGestureFinder, options);
         }
 
-        // Only detect swipes for single-finger gestures
-        if(event.getPointerCount() == 1) {
+        // Only detect swipes for single-finger gestures that haven't been handled by pinch gesture finder
+        if(!ongoingPinchEvent && event.getPointerCount() == 1) {
             if(event.getAction() == MotionEvent.ACTION_DOWN) x1 = event.getX();
             if(event.getAction() == MotionEvent.ACTION_UP) {
                 x2 = event.getX();
